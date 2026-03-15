@@ -174,6 +174,124 @@ echo "Hello from volume" > /data/test.txt
 
 Удалила контейнер, создала новый с тем же томом - файл `test.txt` на месте. Это подтвердило, что данные хранятся в томе, а не внутри контейнера.
 
+### Часть 2. Задание со звёздочкой — создание собственного Dockerfile
+
+### 7. Создание Flask-приложения и Dockerfile 
+
+Flask — это фреймворк на Python для создания веб-приложений. Задача была создать простое приложение и «упаковать» его в Docker-контейнер с помощью Dockerfile
+
+Все файлы проекта находятся в папке [`lab1-flask-app/`](./lab1-flask-app/).
+
+**Структура проекта:**
+
+```
+lab1-flask-app/
+├── app.py            # Само веб-приложение на Python
+├── requirements.txt  # Список библиотек, которые нужны приложению
+└── Dockerfile        # Инструкция: как собрать Docker-образ
+```
+
+---
+
+**`app.py`** — простое веб-приложение. При обращении к корневому адресу (`/`) оно возвращает текст «Hello from Docker!»:
+
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return "Hello from Docker!"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+```
+
+---
+
+**`requirements.txt`** — список Python-библиотек, которые нужно установить. `Werkzeug` — это зависимость Flask, её версию тоже пришлось зафиксировать (об этом ниже):
+
+```
+Flask==2.0.1
+Werkzeug==2.0.3
+```
+
+---
+
+**`Dockerfile`** — пошаговая инструкция для сборки образа. Объясню каждую строку:
+
+```dockerfile
+# Берём готовый образ Python как основу (лёгкая версия)
+FROM python:3.9-slim
+
+# Устанавливаем рабочую папку внутри контейнера
+WORKDIR /app
+
+# Устанавливаем системные утилиты curl и vim
+RUN apt-get update && apt-get install -y curl vim && rm -rf /var/lib/apt/lists/*
+
+# Копируем файл зависимостей и устанавливаем их
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем само приложение
+COPY app.py .
+
+# Создаём отдельного пользователя (не root) для безопасности
+RUN useradd -u 1000 appuser
+USER appuser
+
+# Открываем порт 5000
+EXPOSE 5000
+
+# Устанавливаем переменную окружения
+ENV FLASK_ENV=production
+
+# Команда запуска приложения
+CMD ["python", "app.py"]
+```
+
+---
+
+### Проблема при первом запуске и её решение
+
+При первой попытке запустить контейнер получила ошибку:
+
+```
+ImportError: cannot import name 'url_quote' from 'werkzeug.urls'
+```
+
+Оказалось, что `Flask==2.0.1` написан под старую версию библиотеки `Werkzeug`, а pip автоматически установил новую, в которой убрали функцию `url_quote`. Решение — явно указать совместимую версию Werkzeug в `requirements.txt`:
+
+```
+Flask==2.0.1
+Werkzeug==2.0.3
+```
+
+После этого пересобрала образ, и всё заработало. 
+
+---
+
+**Сборка образа и запуск контейнера:**
+
+```bash
+docker build -t my-flask-app .
+docker run -d -p 5000:5000 --name flask-container my-flask-app
+```
+
+> **Скриншот:** сборка образа и запуск контейнера
+
+![Сборка и запуск Flask](../images/lab1-flask-app-build-run.png)
+
+**Проверка работы в браузере по адресу `http://localhost:5000`:**
+
+> **Скриншот:** Flask-приложение работает в браузере
+
+![Flask приложение в браузере](../images/lab1-flask-app-web.png)
+
+---
+
 ---
 
 ## Результаты лабораторной работы
