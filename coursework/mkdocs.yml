@@ -1,0 +1,45 @@
+# Имя сайта (отображается в шапке и заголовке вкладки браузера)
+site_name: Мой Персональный Сайт
+# Описание сайта (используется поисковиками)
+site_description: Персональный сайт-визитка с портфолио и контактами
+# Имя автора
+site_author: Мажукина Ирина
+# URL, где будет опубликован сайт (пока можно оставить пустым или указать заглушку)
+site_url: https://mzhki.github.io/devops-lab-mazhukina/coursework/
+
+# Настройка темы Material
+theme:
+  # Название темы
+  name: material
+  logo: images/logo.jpg
+  # Настройка функций (фич) темы
+  features:
+    - navigation.tabs      # Верхние вкладки навигации
+    - navigation.sections  # Группировка разделов в боковом меню
+    - navigation.top       # Кнопка "Вверх" при прокрутке
+    - search.highlight     # Подсветка результатов поиска
+    - search.share         # Кнопка поделиться результатами поиска
+  # Настройка цветовой схемы (пока оставим как есть, изменим позже)
+  palette:
+    - scheme: default
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: white
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+# Настройка навигационного меню
+nav:
+  - Главная: index.md
+  - О себе: about.md
+  - Проекты: projects.md
+  - Контакты: contacts.md
+extra:
+  social:
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/iramzhk

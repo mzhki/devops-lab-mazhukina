@@ -53,3 +53,8 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# MkDocs coursework
+coursework/site/
+coursework/.cache/
+coursework/__pycache__/
